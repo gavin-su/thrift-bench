@@ -21,17 +21,22 @@ from ttypes import *
 
 from threading import Thread
 
-HOST = sys.argv[1] #"127.0.0.1"
+HOST = "127.0.0.1"
 PORT = 54343
-REPEAT = 1000
-CONCURRENCY = 10
+REPEAT = 2000
+CONCURRENCY = 200
 
 class BenchWorker(Thread):
   def run(self):
+    from time import time
+    start = time()
     for i in range(0,REPEAT):
       c,t = self.create()
       c.test(1)
       self.close(t)
+    end = time()
+
+    print 'do %d times per second' %(REPEAT/(end-start))
 
   def __init__(self):
     Thread.__init__(self)
