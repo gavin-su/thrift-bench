@@ -26,7 +26,7 @@ try:
     handler = BenchHandler()
     processor = BenchService.Processor(handler)
     transport = TSocket.TServerSocket(port=54343)
-    tfactory = TTransport.TBufferedTransportFactory()
+    tfactory = TTransport.TFramedTransportFactory()
     pfactory = TBinaryProtocol.TBinaryProtocolFactory()
 
     #case 1
