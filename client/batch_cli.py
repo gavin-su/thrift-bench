@@ -21,22 +21,24 @@ from ttypes import *
 
 from threading import Thread
 
-HOST = "127.0.0.1"
+HOST = "192.168.56.128"
 PORT = 54343
-REPEAT = 2000
-CONCURRENCY = 200
+REPEAT = 10
+CONCURRENCY = int(sys.argv[1])
 
 class BenchWorker(Thread):
   def run(self):
-    from time import time
-    start = time()
+    from datetime import datetime
+    start = datetime.now()
     for i in range(0,REPEAT):
       c,t = self.create()
       c.test(1)
       self.close(t)
-    end = time()
+    end = datetime.now()
+    usedtime = end - start
+    usedmsec = usedtime.seconds * 1000 + usedtime.microseconds / 1000
 
-    print 'do %d times per second' %(REPEAT/(end-start))
+    print 'used %d milliseconds per req' %(usedmsec/REPEAT)
 
   def __init__(self):
     Thread.__init__(self)
@@ -60,5 +62,5 @@ for i in threads:
 
 for i in threads:
   i.join()
-print "Concurrency=", CONCURRENCY, ", Repeat=",REPEAT
-print time.time() - t , "s"
+#print "Concurrency=", CONCURRENCY, ", Repeat=",REPEAT
+#print time.time() - t , "s"
