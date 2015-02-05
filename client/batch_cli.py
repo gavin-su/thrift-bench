@@ -23,28 +23,38 @@ from threading import Thread
 
 HOST = "192.168.56.128"
 PORT = 54343
-REPEAT = 10
 CONCURRENCY = int(sys.argv[1])
+REPEAT = int(sys.argv[2])
 
 class BenchWorker(Thread):
   def run(self):
     from datetime import datetime
-    start = datetime.now()
-    for i in range(0,REPEAT):
-      c,t = self.create()
-      c.test(1)
-      self.close(t)
-    end = datetime.now()
-    usedtime = end - start
-    usedmsec = usedtime.seconds * 1000 + usedtime.microseconds / 1000
+    succ, fail = REPEAT,0
 
-    print 'used %d milliseconds per req' %(usedmsec/REPEAT)
+    start = datetime.now()
+    try:
+      for i in range(0,REPEAT):
+        c,t = self.create()
+        c.test(1)
+        self.close(t)
+      end = datetime.now()
+    except:
+      print 'err', sys.exc_info()
+      fail = fail + 1
+      succ = succ - 1
+      end  = start
+
+    usedtime = end - start
+    usedmsec = usedtime.seconds * 1000000 + usedtime.microseconds
+    if usedmsec > 0:
+        print 'used %d milliseconds_per_req' %(usedmsec/succ)
 
   def __init__(self):
     Thread.__init__(self)
 
   def create(self):
     socket = TSocket.TSocket(HOST, PORT)
+    socket.setTimeout(10)
     transport = TTransport.TFramedTransport(socket)
     protocol = TBinaryProtocol.TBinaryProtocol(transport)
     client = BenchService.Client(protocol)
@@ -62,5 +72,3 @@ for i in threads:
 
 for i in threads:
   i.join()
-#print "Concurrency=", CONCURRENCY, ", Repeat=",REPEAT
-#print time.time() - t , "s"
